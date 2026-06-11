@@ -75,28 +75,6 @@ cd Treemformance
 python3 -m http.server 8080
 ```
 
-## Deploy on Netlify
-
-This site is static. No build command needed.
-
-1. Push this repo to GitHub (see above).
-2. Log in to [Netlify](https://www.netlify.com/) and choose **Add new site** → **Import an existing project**.
-3. Pick the **Treemformance** repo.
-4. Build settings (should auto-fill from `netlify.toml`):
-   - **Build command:** leave empty
-   - **Publish directory:** `.` (repo root)
-5. Click **Deploy**.
-
-Your live URL will look like `https://something.netlify.app`. The root URL loads `index.html`, which sends first-time visitors to `loading.html` (same as local).
-
-**Before deploy:** add your MP3 files to `audio/` (see `audio/README.md`). Commit and push so Netlify can serve them.
-
-## Sharing with someone else
-
-1. Share the GitHub link or Netlify URL.
-2. For local play, use a simple server (commands above).
-3. Start at **loading.html** or the site root.
-
 ## Documentation
 
 - [Documentation index](index.md)

@@ -1163,7 +1163,6 @@
     await animateScoreTally(scoreBefore, penalty);
 
     const finalScore = Math.max(0, scoreBefore - penalty);
-    const matchPct = Math.round((result.matches / result.goalCount) * 100);
 
     if (compareTitle) compareTitle.textContent = "Beta complete!";
     if (compareLede) {

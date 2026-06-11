@@ -29,7 +29,7 @@
     if (!sheet) return;
     sheet.hidden = true;
     sheet.setAttribute("aria-hidden", "true");
-    document.body.classList.remove("is-level-music-open");
+    document.body.classList.remove("is-level-music-open", "is-level-music-opening");
   }
 
   function openSheet() {
@@ -38,11 +38,25 @@
     sheet.hidden = false;
     sheet.setAttribute("aria-hidden", "false");
     document.body.classList.add("is-level-music-open");
+    document.body.classList.remove("is-level-music-opening");
     sheet.querySelector(".level-music-sheet__close")?.focus();
+  }
+
+  function isSameTrackPlaying(trackId) {
+    if (trackId !== getActiveId()) return false;
+    return Boolean(
+      global.TreeMusic?.isPlaying?.() || global.LevelAudio?.isActive?.()
+    );
   }
 
   async function pickTrack(trackId) {
     if (!trackId) return;
+    if (isSameTrackPlaying(trackId)) {
+      global.LevelSfx?.playConfirm?.();
+      updateLabel();
+      closeSheet();
+      return;
+    }
     global.LevelSfx?.playConfirm?.();
     global.LevelAudio?.unlockSync?.();
 
@@ -124,6 +138,22 @@
     `;
     document.body.appendChild(sheet);
 
+    const clearOpeningGuard = () => {
+      if (sheet?.hidden) {
+        document.body.classList.remove("is-level-music-opening");
+      }
+    };
+
+    btn.addEventListener(
+      "pointerdown",
+      (e) => {
+        if (e.button !== 0 || !sheet?.hidden) return;
+        document.body.classList.add("is-level-music-opening");
+      },
+      { capture: true }
+    );
+    btn.addEventListener("pointerup", clearOpeningGuard);
+    btn.addEventListener("pointercancel", clearOpeningGuard);
     btn.addEventListener("click", openSheet);
     sheet.querySelector(".level-music-sheet__close")?.addEventListener("click", closeSheet);
     sheet.querySelector("[data-close]")?.addEventListener("click", closeSheet);

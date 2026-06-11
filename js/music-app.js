@@ -1421,7 +1421,10 @@
     getPlaybackTimeMs,
     getCurrentTrackId: () => currentTrackId,
     getActiveTrackId: () => global.MusicCatalog?.getActiveTrackId?.() || currentTrackId,
-    isPlaying: () => engine.isPlaying() || Boolean(global.LevelAudio?.isPlaying?.()),
+    isPlaying: () => {
+      if (levelMode && global.LevelAudio?.isActive?.()) return true;
+      return engine.isPlaying() || Boolean(global.LevelAudio?.isPlaying?.());
+    },
     getAlbums: () => ALBUMS,
     getPlaylists: () => ensurePlaylists(),
     getQueue: () => ({ queue: [...queue], queueIndex, queueContext }),

@@ -192,10 +192,20 @@
     return true;
   }
 
+  function hasActiveLevelPlayback() {
+    return Boolean(
+      global.TreeMusic?.isPlaying?.() ||
+        (levelMusicStarted && global.LevelAudio?.isActive?.())
+    );
+  }
+
   async function beginLevelFromGesture() {
     if (!isReady()) return false;
-    if (playbackStarting) return levelMusicStarted && global.TreeMusic.isPlaying();
-    if (levelMusicStarted && global.TreeMusic.isPlaying()) return true;
+    if (playbackStarting) return hasActiveLevelPlayback();
+    if (levelMusicStarted && hasActiveLevelPlayback()) {
+      await ensurePlaying();
+      return true;
+    }
 
     playbackStarting = true;
     try {
@@ -228,10 +238,20 @@
     if (gestureHooked) return;
     gestureHooked = true;
 
-    const onGesture = () => {
-      if (document.body.classList.contains("is-level-music-open")) return;
+    const onGesture = (event) => {
+      if (
+        document.body.classList.contains("is-level-music-open") ||
+        document.body.classList.contains("is-level-music-opening")
+      ) {
+        return;
+      }
+      if (event?.target?.closest?.(".level-hud__music, .level-music-sheet")) return;
       if (switchInFlight) return;
-      if (levelMusicStarted && global.TreeMusic?.isPlaying?.()) return;
+      if (levelMusicStarted && hasActiveLevelPlayback()) {
+        global.LevelAudio?.unlockSync?.();
+        ensurePlaying();
+        return;
+      }
       global.LevelAudio?.unlockSync?.();
       beginLevelFromGesture();
     };
@@ -292,6 +312,11 @@
     if (!id) return false;
 
     await waitForTrackSwitch();
+
+    const currentId = activeTrackId || global.MusicCatalog.getActiveTrackId();
+    if (id === currentId && global.LevelAudio?.isActive?.() && !playbackEnded) {
+      return true;
+    }
 
     const job = (async () => {
       global.MusicCatalog.setActiveTrackId(id);

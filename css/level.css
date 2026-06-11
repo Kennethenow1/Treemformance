@@ -2314,6 +2314,83 @@ body.level-page--2 .play-window:not(:has(.play-window__left > :not([hidden]))) .
   animation: compare-tree-in 0.45s ease forwards;
 }
 
+.compare-modal__actions--beta {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.65rem;
+}
+
+.compare-modal__beta-outro {
+  margin: 0 0 1rem;
+  padding: 0.85rem 0.95rem;
+  text-align: center;
+  border: 2px dashed var(--color-ink);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--color-bg) 92%, var(--color-grey-light));
+}
+
+.compare-modal__beta-outro[hidden] {
+  display: none !important;
+}
+
+.compare-modal__beta-outro.is-show {
+  animation: compare-tree-in 0.45s ease forwards;
+}
+
+.compare-modal__beta-thanks {
+  margin: 0 0 0.4rem;
+  font-family: var(--font-display);
+  font-size: clamp(1rem, 3.2vw, 1.2rem);
+  line-height: 1.2;
+  color: var(--color-ink);
+}
+
+.compare-modal__beta-note {
+  margin: 0;
+  font-family: var(--font-ui);
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: var(--color-grey-mid);
+}
+
+.compare-modal__copy-score {
+  width: 100%;
+  padding: 0.72rem 1rem;
+  font-family: var(--font-ui);
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-bg);
+  background: var(--color-ink);
+  border: 2px solid var(--color-ink);
+  border-radius: 999px;
+  box-shadow: 3px 3px 0 var(--color-ink);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.compare-modal__copy-score:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 var(--color-ink);
+}
+
+.compare-modal__copy-score:active {
+  transform: translate(1px, 1px);
+  box-shadow: 2px 2px 0 var(--color-ink);
+}
+
+.compare-modal__copy-score.is-copied {
+  background: var(--color-bg);
+  color: var(--color-ink);
+}
+
+.compare-modal--beta .compare-modal__actions .tutorial-modal__gotit {
+  width: 100%;
+  text-align: center;
+  box-sizing: border-box;
+}
+
 .compare-modal .tree-node--compare-hidden .tree-node__circle {
   stroke: var(--color-grey-ghost);
   stroke-dasharray: 5 4;

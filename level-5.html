@@ -12,7 +12,7 @@
   <script src="js/level-theme.js?v=1" defer></script>
   <link rel="stylesheet" href="css/tree.css?v=4">
   <link rel="stylesheet" href="css/tutorial.css">
-  <link rel="stylesheet" href="css/level.css?v=breath-fix-1">
+  <link rel="stylesheet" href="css/level.css?v=beta-outro-1">
   <link rel="stylesheet" href="css/level-boot.css?v=2">
   <script>document.documentElement.classList.add("is-level-booting");</script>
 </head>
@@ -191,7 +191,7 @@
     </footer>
   </div>
 
-  <div class="compare-modal" id="compare-modal" role="dialog" aria-modal="true" aria-labelledby="compare-title" hidden>
+  <div class="compare-modal compare-modal--beta" id="compare-modal" role="dialog" aria-modal="true" aria-labelledby="compare-title" hidden>
     <div class="compare-modal__backdrop" aria-hidden="true"></div>
     <div class="compare-modal__panel compare-modal__panel--wide">
       <h2 class="compare-modal__title" id="compare-title">Tree Check</h2>
@@ -236,7 +236,17 @@
         </p>
       </div>
 
-      <div class="compare-modal__actions" id="compare-actions" hidden>
+      <div class="compare-modal__beta-outro" id="compare-beta-outro" hidden>
+        <p class="compare-modal__beta-thanks">Thanks for testing the beta!</p>
+        <p class="compare-modal__beta-note">
+          You finished the full Beta Tester run. Copy your final score and share it with colleagues if you want to flex a little.
+        </p>
+      </div>
+
+      <div class="compare-modal__actions compare-modal__actions--beta" id="compare-actions" hidden>
+        <button type="button" class="compare-modal__copy-score" id="compare-copy-score">
+          Copy final score
+        </button>
         <a class="tutorial-modal__gotit" href="index.html">Back to menu</a>
       </div>
     </div>
@@ -263,6 +273,6 @@
   <script src="js/level-choice-input.js?v=5" defer></script>
   <script src="js/level-input.js?v=2" defer></script>
   <script src="js/level-modal.js?v=10" defer></script>
-  <script src="js/level-5.js?v=breath-fix" defer></script>
+  <script src="js/level-5.js?v=beta-outro" defer></script>
 </body>
 </html>

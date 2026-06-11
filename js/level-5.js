@@ -99,6 +99,9 @@
   const comparePenaltyEl = document.getElementById("compare-penalty");
   const compareScoreFinal = document.getElementById("compare-score-final");
   const compareActions = document.getElementById("compare-actions");
+  const compareBetaOutro = document.getElementById("compare-beta-outro");
+  const compareCopyScoreBtn = document.getElementById("compare-copy-score");
+  const compareTitle = document.getElementById("compare-title");
   const numberPoolChips = document.getElementById("number-pool-chips");
   let treeMap = null;
   let goalMap = null;
@@ -1071,6 +1074,57 @@
     updateScore(-penalty);
   }
 
+  function buildScoreFlexText(finalScore, matchPct) {
+    const pts = String(finalScore).trim();
+    const match = String(matchPct).trim();
+    return `TREEFORMANCE Beta Tester — ${pts} PTS (${match} tree match)`;
+  }
+
+  async function copyFinalScoreToClipboard() {
+    const finalScore = compareScoreFinal?.textContent || String(score);
+    const matchPct = compareMatchPct?.textContent || "0%";
+    const text = buildScoreFlexText(finalScore, matchPct);
+
+    const showCopied = () => {
+      if (!compareCopyScoreBtn) return;
+      compareCopyScoreBtn.classList.add("is-copied");
+      compareCopyScoreBtn.textContent = "Copied!";
+      window.setTimeout(() => {
+        compareCopyScoreBtn.classList.remove("is-copied");
+        compareCopyScoreBtn.textContent = "Copy final score";
+      }, 2200);
+    };
+
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text);
+        showCopied();
+        return;
+      }
+    } catch {
+      // Fall through to legacy copy.
+    }
+
+    const helper = document.createElement("textarea");
+    helper.value = text;
+    helper.setAttribute("readonly", "");
+    helper.style.position = "fixed";
+    helper.style.left = "-9999px";
+    document.body.appendChild(helper);
+    helper.select();
+    try {
+      document.execCommand("copy");
+      showCopied();
+    } catch {
+      setPrompt("Could not copy — select score from the screen.");
+    }
+    helper.remove();
+  }
+
+  compareCopyScoreBtn?.addEventListener("click", () => {
+    copyFinalScoreToClipboard();
+  });
+
   async function runComparePresentation(result, penalty, scoreBefore) {
     if (!compareModal) return;
 
@@ -1081,6 +1135,15 @@
       compareActions.hidden = true;
       compareActions.classList.remove("is-show");
     }
+    if (compareBetaOutro) {
+      compareBetaOutro.hidden = true;
+      compareBetaOutro.classList.remove("is-show");
+    }
+    if (compareCopyScoreBtn) {
+      compareCopyScoreBtn.classList.remove("is-copied");
+      compareCopyScoreBtn.textContent = "Copy final score";
+    }
+    if (compareTitle) compareTitle.textContent = "Tree Check";
     if (comparePenaltyRow) {
       comparePenaltyRow.hidden = true;
       comparePenaltyRow.classList.remove("is-show");
@@ -1099,13 +1162,24 @@
     await animateMatchMeter(matchPct);
     await animateScoreTally(scoreBefore, penalty);
 
+    const finalScore = Math.max(0, scoreBefore - penalty);
+    const matchPct = Math.round((result.matches / result.goalCount) * 100);
+
+    if (compareTitle) compareTitle.textContent = "Beta complete!";
+    if (compareLede) {
+      compareLede.textContent = "Thanks for playing through the beta build.";
+    }
+    if (compareBetaOutro) {
+      compareBetaOutro.hidden = false;
+      compareBetaOutro.classList.add("is-show");
+    }
     if (compareActions) {
       compareActions.hidden = false;
       compareActions.classList.add("is-show");
     }
 
     compareModal.classList.remove("is-animating");
-    setPrompt(`Final score ${Math.max(0, scoreBefore - penalty)}`);
+    setPrompt(`Final score ${finalScore} — copy it to share!`);
   }
 
   async function runTreeComparison() {

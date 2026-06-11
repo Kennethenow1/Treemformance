@@ -2,10 +2,29 @@
  * Piano tile visuals and rhythm session timing.
  *
  * - breathThenBegin: short "Get ready" pause after a card pick (all levels)
+ * - prepLayout: measure lanes only, no chart (safe during breath)
  * - armSession: build the note chart after audio is ready so tiles fall from the top
  * - updateTilePositions: move tiles each frame using the music clock
  */
 (function initLevelTiles(global) {
+  let sessionLock = false;
+
+  function isSessionLocked() {
+    return sessionLock;
+  }
+
+  function isBreathActive() {
+    return Boolean(global.document.querySelector(".play-window.is-sequence-breath"));
+  }
+
+  function setNotesArming(notes, arming) {
+    (notes || []).forEach((note) => {
+      global.LevelMusic?.getTileTargets?.(note).forEach((el) => {
+        el.classList.toggle("tile-note--arming", arming);
+      });
+    });
+  }
+
   function playSlam(note) {
     global.LevelMusic?.getTileTargets?.(note).forEach((el) => {
       el.classList.remove("is-miss", "is-miss-out");
@@ -87,35 +106,6 @@
 
   const SEQUENCE_BREATH_MS = 650;
 
-  /** Short calm after a choice — piano visible, lanes empty, then begin rhythm. */
-  async function breathThenBegin({
-    playWindow,
-    phaseCheck,
-    setPrompt,
-    promptAfter,
-    reducedMotion = false,
-    breathMs = SEQUENCE_BREATH_MS,
-    beforeBegin,
-    begin,
-  } = {}) {
-    if (beforeBegin) {
-      await Promise.resolve(beforeBegin());
-    }
-    if (phaseCheck && !phaseCheck()) return;
-
-    playWindow?.classList.add("is-sequence-breath");
-    setPrompt?.("Get ready…");
-
-    const waitMs = reducedMotion ? Math.round(breathMs * 0.62) : breathMs;
-    await new Promise((resolve) => global.setTimeout(resolve, waitMs));
-
-    playWindow?.classList.remove("is-sequence-breath");
-    if (phaseCheck && !phaseCheck()) return;
-
-    if (promptAfter != null) setPrompt?.(promptAfter);
-    return begin?.();
-  }
-
   async function measureStage(measureHitLine) {
     return new Promise((resolve) => {
       global.requestAnimationFrame(() => {
@@ -128,8 +118,64 @@
     });
   }
 
+  /** Layout only: empty lanes, no chart. Safe while "Get ready" is on screen. */
+  async function prepLayout({
+    stopTileRush,
+    clearTiles,
+    applyTimingGuide,
+    cacheTileDom,
+    measureHitLine,
+  } = {}) {
+    stopTileRush?.();
+    clearTiles?.();
+    applyTimingGuide?.();
+    cacheTileDom?.();
+    await measureStage(measureHitLine);
+  }
+
+  /**
+   * Short calm after a choice: prep lanes during breath, then call begin (armSession).
+   */
+  async function breathThenBegin({
+    playWindow,
+    phaseCheck,
+    setPrompt,
+    promptAfter,
+    reducedMotion = false,
+    breathMs = SEQUENCE_BREATH_MS,
+    beforeBegin,
+    prepDuringBreath,
+    begin,
+  } = {}) {
+    if (beforeBegin) {
+      await Promise.resolve(beforeBegin());
+    }
+    if (phaseCheck && !phaseCheck()) return;
+
+    playWindow?.classList.add("is-sequence-breath");
+    setPrompt?.("Get ready…");
+
+    if (prepDuringBreath) {
+      await Promise.resolve(prepDuringBreath());
+    }
+    if (phaseCheck && !phaseCheck()) {
+      playWindow?.classList.remove("is-sequence-breath");
+      return;
+    }
+
+    const waitMs = reducedMotion ? Math.round(breathMs * 0.62) : breathMs;
+    await new Promise((resolve) => global.setTimeout(resolve, waitMs));
+
+    playWindow?.classList.remove("is-sequence-breath");
+    if (phaseCheck && !phaseCheck()) return;
+
+    if (promptAfter != null) setPrompt?.(promptAfter);
+    return begin?.();
+  }
+
   /**
    * Ensure audio is ready, then build the chart so note times match "now".
+   * Tiles stay hidden until positioned to avoid a one-frame flash.
    */
   async function armSession({
     phaseCheck,
@@ -143,35 +189,57 @@
     measureHitLine,
     updateTilePositions,
     beginLoop,
+    skipPrep = false,
   } = {}) {
-    stopTileRush?.();
-    clearTiles?.();
+    if (sessionLock) return null;
+    sessionLock = true;
 
-    await global.LevelMusic?.waitForTrackSwitch?.();
-    await global.LevelMusic?.ensurePlaying?.();
+    try {
+      stopTileRush?.();
+      clearTiles?.();
 
-    if (phaseCheck && !phaseCheck()) return null;
+      await global.LevelMusic?.waitForTrackSwitch?.();
+      await global.LevelMusic?.ensurePlaying?.();
 
-    applyTimingGuide?.();
-    cacheTileDom?.();
+      if (phaseCheck && !phaseCheck()) return null;
 
-    const notes = buildChart?.() || [];
-    onNotes?.(notes);
-    spawnTileElements?.();
+      if (!skipPrep) {
+        applyTimingGuide?.();
+        cacheTileDom?.();
+      }
 
-    await measureStage(measureHitLine);
-    if (phaseCheck && !phaseCheck()) return notes;
+      const notes = buildChart?.() || [];
+      onNotes?.(notes);
+      spawnTileElements?.();
+      setNotesArming(notes, true);
 
-    updateTilePositions?.();
-    beginLoop?.();
-    return notes;
+      await measureStage(measureHitLine);
+      if (phaseCheck && !phaseCheck()) return notes;
+
+      updateTilePositions?.();
+      setNotesArming(notes, false);
+      beginLoop?.();
+      return notes;
+    } finally {
+      sessionLock = false;
+    }
   }
 
-  function bindRhythmTrackSwap({ getPhase, stopTileRush, clearTiles, startTileRush, setPrompt, getSongLabel }) {
+  function bindRhythmTrackSwap({
+    getPhase,
+    canArm,
+    stopTileRush,
+    clearTiles,
+    startTileRush,
+    setPrompt,
+    getSongLabel,
+  }) {
     if (!global.LevelMusic?.onRhythmTrackChange) return () => {};
 
     return global.LevelMusic.onRhythmTrackChange((trackId, gen) => {
       if (getPhase() !== "sequence") return;
+      if (sessionLock || isBreathActive()) return;
+      if (canArm && !canArm()) return;
 
       stopTileRush?.();
       clearTiles?.();
@@ -183,6 +251,8 @@
 
       global.requestAnimationFrame(() => {
         if (!global.LevelMusic?.isRhythmGenerationCurrent?.(gen)) return;
+        if (sessionLock || isBreathActive()) return;
+        if (canArm && !canArm()) return;
         startTileRush?.();
       });
     });
@@ -198,9 +268,11 @@
     playMissOut,
     removeNoteElements,
     measureStage,
+    prepLayout,
     breathThenBegin,
     armSession,
     bindRhythmTrackSwap,
+    isSessionLocked,
     SEQUENCE_BREATH_MS,
   };
 })(window);

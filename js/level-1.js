@@ -447,27 +447,59 @@
   async function scheduleSequenceStart() {
     if (sequenceArming || phase !== "sequence") return;
     sequenceArming = true;
-    playWindow?.classList.add("is-sequence-breath");
-    setPrompt("Get ready…");
+    const song = LevelMusic?.getActiveTrackLabel?.();
+    const promptAfter = song ? `Tap on the beat — ${song}` : "Tap on the beat!";
 
     try {
-      await delay(prefersReducedMotion ? 480 : SEQUENCE_BREATH_MS);
-      if (phase !== "sequence") return;
-      try {
-        await withTimeout(armAndStartTileRush(), ASYNC_STEP_TIMEOUT_MS);
-      } catch {
-        LevelAudio?.unlockSync?.();
-        await withTimeout(LevelMusic?.ensurePlaying?.(), 2500);
-        tileNotes = buildTileChart();
-        spawnTileElements();
-        await measureTileStage();
-        updateTilePositions();
-        beginTileRushLoop();
-      }
-      const song = LevelMusic?.getActiveTrackLabel?.();
-      setPrompt(song ? `Tap on the beat — ${song}` : "Tap on the beat!");
+      await LevelTiles?.breathThenBegin?.({
+        playWindow,
+        phaseCheck: () => phase === "sequence",
+        setPrompt,
+        promptAfter,
+        reducedMotion: prefersReducedMotion,
+        breathMs: SEQUENCE_BREATH_MS,
+        prepDuringBreath: () => LevelTiles?.prepLayout?.({
+          stopTileRush,
+          clearTiles,
+          applyTimingGuide,
+          cacheTileDom,
+          measureHitLine,
+        }),
+        begin: async () => {
+          try {
+            await withTimeout(
+              LevelTiles?.armSession?.({
+                phaseCheck: () => phase === "sequence",
+                stopTileRush,
+                clearTiles,
+                skipPrep: true,
+                buildChart: buildTileChart,
+                onNotes: (notes) => { tileNotes = notes; },
+                spawnTileElements,
+                measureHitLine,
+                updateTilePositions,
+                beginLoop: beginTileRushLoop,
+              }),
+              ASYNC_STEP_TIMEOUT_MS
+            );
+          } catch {
+            LevelAudio?.unlockSync?.();
+            await withTimeout(LevelMusic?.ensurePlaying?.(), 2500);
+            await LevelTiles?.armSession?.({
+              phaseCheck: () => phase === "sequence",
+              stopTileRush,
+              clearTiles,
+              buildChart: buildTileChart,
+              onNotes: (notes) => { tileNotes = notes; },
+              spawnTileElements,
+              measureHitLine,
+              updateTilePositions,
+              beginLoop: beginTileRushLoop,
+            });
+          }
+        },
+      });
     } finally {
-      playWindow?.classList.remove("is-sequence-breath");
       sequenceArming = false;
     }
   }
@@ -792,6 +824,7 @@
 
   LevelTiles?.bindRhythmTrackSwap?.({
     getPhase: () => phase,
+    canArm: () => phase === "sequence" && !sequenceArming && !playWindow?.classList.contains("is-sequence-breath"),
     stopTileRush,
     clearTiles,
     startTileRush,

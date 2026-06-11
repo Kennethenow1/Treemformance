@@ -179,7 +179,9 @@
       bridge.classList.remove("is-open");
       playWindow?.classList.remove("is-sequence-prep");
       playWindow?.classList.add("is-sequence-reveal");
-      void Promise.resolve(onReveal?.());
+
+      // Wait for breath + chart arm so tiles do not flash then vanish on cleanup.
+      await Promise.resolve(onReveal?.());
 
       await delay(revealMs);
     } finally {

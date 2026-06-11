@@ -530,13 +530,27 @@ body.is-choice-pressure .choice-pressure {
   animation: tree-handoff-settle 0.48s ease both;
 }
 
-/* Brief calm after piano reveal — empty lanes before first tile spawns */
+/* Brief calm before first tile spawns — keep lanes empty even if chart arms early */
+.play-window.is-sequence-breath .tile-note,
+.play-window.is-sequence-breath .tile-rush__judge {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
 .play-window.is-sequence-breath .tile-rush__hitzone {
   animation: sequence-breath-pulse 1.1s ease-in-out infinite;
 }
 
 .play-window.is-sequence-breath .tile-rush__receptors .tile-receptor {
   opacity: 0.72;
+}
+
+/* Hidden until armSession finishes the first position sync */
+.tile-note--arming {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
 }
 
 @keyframes sequence-breath-pulse {

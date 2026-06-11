@@ -542,8 +542,7 @@
       phaseCheck: () => phase === "sequence",
       stopTileRush,
       clearTiles,
-      applyTimingGuide,
-      cacheTileDom,
+      skipPrep: true,
       buildChart: buildTileChart,
       onNotes: (notes) => { tileNotes = notes; },
       spawnTileElements,
@@ -835,6 +834,13 @@
       setPrompt,
       promptAfter,
       reducedMotion: prefersReducedMotion,
+      prepDuringBreath: () => LevelTiles?.prepLayout?.({
+        stopTileRush,
+        clearTiles,
+        applyTimingGuide,
+        cacheTileDom,
+        measureHitLine,
+      }),
       begin: () => startTileRush(),
     });
   }
@@ -916,6 +922,7 @@
 
   LevelTiles?.bindRhythmTrackSwap?.({
     getPhase: () => phase,
+    canArm: () => phase === "sequence" && !playWindow?.classList.contains("is-sequence-breath"),
     stopTileRush,
     clearTiles,
     startTileRush,

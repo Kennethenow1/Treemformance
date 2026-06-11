@@ -82,16 +82,22 @@ line.tree-edge {
 }
 
 .tree-node__label {
-  font-family: var(--font-display);
-  font-size: 16px;
-  font-weight: 700;
+  /* UI sans reads clearly inside small circles; Titan One fills digit holes (8, 0, 6). */
+  font-family: var(--font-ui);
+  font-size: 17px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
   fill: var(--color-ink);
+  stroke: none;
+  paint-order: stroke fill;
   user-select: none;
   pointer-events: none;
 }
 
 .tree-node--root .tree-node__label {
-  font-size: 18px;
+  font-size: 19px;
+  font-weight: 700;
 }
 
 /* ---- Highlight ring ---- */

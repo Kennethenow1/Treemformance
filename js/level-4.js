@@ -752,8 +752,7 @@
       phaseCheck: () => phase === "sequence",
       stopTileRush,
       clearTiles,
-      applyTimingGuide,
-      cacheTileDom,
+      skipPrep: true,
       buildChart: buildTileChart,
       onNotes: (notes) => { tileNotes = notes; },
       spawnTileElements,
@@ -1344,6 +1343,13 @@
       promptAfter,
       reducedMotion: prefersReducedMotion,
       beforeBegin: () => panGoalCamera(),
+      prepDuringBreath: () => LevelTiles?.prepLayout?.({
+        stopTileRush,
+        clearTiles,
+        applyTimingGuide,
+        cacheTileDom,
+        measureHitLine,
+      }),
       begin: () => startTileRush(),
     });
   }
@@ -1428,6 +1434,7 @@
 
   LevelTiles?.bindRhythmTrackSwap?.({
     getPhase: () => phase,
+    canArm: () => phase === "sequence" && !playWindow?.classList.contains("is-sequence-breath"),
     stopTileRush,
     clearTiles,
     startTileRush,

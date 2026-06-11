@@ -761,6 +761,7 @@
           .attr("class", "tree-node__label")
           .attr("text-anchor", "middle")
           .attr("dy", "0.35em")
+          .attr("font-size", `${this._labelFontSize(this._nodeLabel(d.data.id), d.depth === 0)}px`)
           .text(this._nodeLabel(d.data.id));
 
         this.nodeById.set(d.data.id, g);
@@ -777,6 +778,13 @@
       if (!s) return "";
       if (s.pending || s.compareHidden) return "?";
       return s.label;
+    }
+
+    _labelFontSize(label, isRoot = false) {
+      const len = String(label ?? "").length;
+      if (len >= 3) return isRoot ? 13 : 12;
+      if (len >= 2) return isRoot ? 15 : 14;
+      return isRoot ? 19 : 17;
     }
 
     _nodeClass(d) {
@@ -819,7 +827,10 @@
       const d = this.layoutNodes.find((n) => n.data.id === id);
       if (!d) return;
       g.attr("class", this._nodeClass(d));
-      g.select(".tree-node__label").text(this._nodeLabel(id));
+      const label = this._nodeLabel(id);
+      g.select(".tree-node__label")
+        .attr("font-size", `${this._labelFontSize(label, d.depth === 0)}px`)
+        .text(label);
     }
 
     _syncLink(id) {

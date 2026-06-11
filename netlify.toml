@@ -1,0 +1,29 @@
+# Netlify deploy: static site, no build step.
+# Connect this repo in Netlify and use these settings (or leave auto-detect).
+
+[build]
+  publish = "."
+  command = ""
+
+# SPA-style fallback is NOT used; each page is its own HTML file.
+
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/css/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"
+
+[[headers]]
+  for = "/js/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"
+
+[[headers]]
+  for = "/audio/*"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"
+    Accept-Ranges = "bytes"

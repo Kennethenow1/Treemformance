@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TREEFORMANCE</title>
+  <script>
+    (function () {
+      try {
+        if (sessionStorage.getItem("treeformance-preload-done") === "1") return;
+      } catch (e) {}
+      var dest = "loading.html";
+      if (location.search) dest += location.search;
+      if (location.hash) dest += location.hash;
+      location.replace(dest);
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Titan+One&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/menu.css?v=11">
+  <link rel="stylesheet" href="css/music.css?v=7">
+  <link rel="stylesheet" href="css/sync-calibration.css?v=2">
+</head>
+<body>
+  <div class="stage">
+    <canvas class="ascii-viz" id="menu-viz" aria-hidden="true"></canvas>
+    <main class="menu">
+      <nav class="btns" aria-label="Main menu">
+        <a class="btn btn--tut" href="level-1.html"><span>Tutorial</span></a>
+        <a class="btn btn--beta" href="level-5.html"><span>Beta Tester</span></a>
+        <button type="button" class="btn btn--music" id="music-open" aria-haspopup="dialog">
+          <span>Music</span>
+        </button>
+        <a class="btn btn--settings" href="game-settings.html"><span>Settings</span></a>
+      </nav>
+    </main>
+  </div>
+
+  <button type="button" class="menu-music-pill" id="music-mini-pill" hidden aria-label="Open music player">
+    <span class="menu-music-pill__art" aria-hidden="true"></span>
+    <span class="menu-music-pill__label">Now playing</span>
+    <span class="menu-music-pill__eq" aria-hidden="true"><span></span><span></span><span></span></span>
+  </button>
+
+  <div class="music-phone" id="music-phone" role="dialog" aria-modal="true" aria-labelledby="music-phone-title" hidden>
+    <div class="music-phone__backdrop" aria-hidden="true"></div>
+    <div class="music-phone__device">
+      <div class="music-phone__bezel">
+        <div class="music-phone__screen">
+          <div class="music-phone__status">
+            <span id="music-clock">12:00</span>
+            <span class="music-phone__status-dots" aria-hidden="true"><span></span><span></span><span></span></span>
+          </div>
+
+          <header class="music-phone__header">
+            <h2 class="music-phone__title" id="music-phone-title">Music</h2>
+            <button type="button" class="music-phone__close" id="music-close" aria-label="Close music">×</button>
+          </header>
+
+          <nav class="music-phone__tabs" aria-label="Music sections">
+            <button type="button" class="music-phone__tab is-active" data-music-tab="albums">Albums</button>
+            <button type="button" class="music-phone__tab" data-music-tab="playlists">Playlists</button>
+            <button type="button" class="music-phone__tab" data-music-tab="sync">Sync</button>
+          </nav>
+
+          <div class="music-phone__body">
+            <div class="music-phone__view" id="music-view-albums">
+              <div class="music-albums" id="music-album-grid"></div>
+            </div>
+
+            <div class="music-phone__view" id="music-view-album-detail" hidden>
+              <div class="music-view-head">
+                <button type="button" class="music-back" id="music-back-album" aria-label="Back to albums">←</button>
+                <h3 class="music-view-head__title" id="music-album-detail-title">Album</h3>
+              </div>
+              <ul class="music-tracks" id="music-track-list"></ul>
+            </div>
+
+            <div class="music-phone__view" id="music-view-playlists" hidden>
+              <div class="music-playlist-create">
+                <input
+                  type="text"
+                  class="music-playlist-create__input"
+                  id="music-playlist-name"
+                  placeholder="New playlist name"
+                  maxlength="40"
+                  aria-label="Playlist name"
+                  autocomplete="off"
+                >
+                <button type="button" class="music-playlist-create__btn" id="music-playlist-create">Create</button>
+                <p class="music-playlist-create__error" id="music-playlist-create-error" hidden></p>
+              </div>
+              <div id="music-playlist-list"></div>
+            </div>
+
+            <div class="music-phone__view" id="music-view-playlist-detail" hidden>
+              <div class="music-view-head">
+                <button type="button" class="music-back" id="music-back-playlist" aria-label="Back to playlists">←</button>
+                <h3 class="music-view-head__title" id="music-playlist-detail-title">Playlist</h3>
+              </div>
+              <ul class="music-tracks" id="music-playlist-track-list"></ul>
+            </div>
+
+            <div class="music-phone__view" id="music-view-sync" hidden></div>
+          </div>
+
+          <footer class="music-phone__player">
+            <div class="music-player__now">
+              <div class="music-player__art" id="music-player-art">—</div>
+              <div class="music-player__meta">
+                <span class="music-player__title-row">
+                  <span class="music-player__track" id="music-player-track">Nothing playing</span>
+                  <span class="music-player__diff" id="music-player-diff" hidden></span>
+                </span>
+                <span class="music-player__album" id="music-player-album">Pick a song</span>
+              </div>
+            </div>
+            <div class="music-player__controls">
+              <button type="button" class="music-player__btn" id="music-prev-btn" aria-label="Previous">⏮</button>
+              <button type="button" class="music-player__btn music-player__btn--main" id="music-play-btn" aria-label="Play or pause">▶</button>
+              <button type="button" class="music-player__btn" id="music-next-btn" aria-label="Next">⏭</button>
+            </div>
+            <div class="music-player__progress" aria-hidden="true">
+              <div class="music-player__progress-fill" id="music-player-progress"></div>
+            </div>
+          </footer>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="music-picker" id="music-picker" hidden role="dialog" aria-labelledby="music-picker-title">
+    <div class="music-picker__backdrop" aria-hidden="true"></div>
+    <div class="music-picker__sheet">
+      <h3 class="music-picker__title" id="music-picker-title">Add to playlist</h3>
+      <ul class="music-picker__list" id="music-picker-list"></ul>
+    </div>
+  </div>
+
+  <script src="js/menu.js?v=3" defer></script>
+  <script src="js/music-catalog.js?v=6" defer></script>
+  <script src="js/beatmaps-data.js?v=5" defer></script>
+  <script src="js/beatmaps.js?v=17" defer></script>
+  <script src="js/ascii-bg.js?v=2" defer></script>
+  <script src="js/menu-bg.js?v=6" defer></script>
+  <script src="js/music-app.js?v=20" defer></script>
+  <script src="js/sync-calibration.js?v=5" defer></script>
+  <script src="js/menu-audio.js?v=7" defer></script>
+</body>
+</html>

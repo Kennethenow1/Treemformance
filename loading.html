@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Loading — TREEFORMANCE</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Titan+One&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/loader.css?v=3">
+</head>
+<body class="loader-page">
+  <canvas class="loader__viz" id="loader-viz" aria-hidden="true"></canvas>
+
+  <main class="loader" aria-live="polite" aria-busy="true">
+    <p class="loader__brand">TREEFORMANCE</p>
+    <pre class="loader__ascii" id="loader-ascii" aria-hidden="true">  ░▒▓ TREEFORMANCE ▓▒░ </pre>
+    <p class="loader__spinner" id="loader-spinner" aria-hidden="true">◐ ◓ ◑ ◒</p>
+
+    <div class="loader__bar-wrap" aria-hidden="true">
+      <div class="loader__bar" id="loader-bar"></div>
+    </div>
+
+    <p class="loader__status" id="loader-status">Loading…</p>
+    <p class="loader__pct" id="loader-pct">0%</p>
+  </main>
+
+  <script src="js/ascii-bg.js?v=6"></script>
+  <script src="js/preload-manifest.js?v=2"></script>
+  <script src="js/loader.js?v=4"></script>
+</body>
+</html>

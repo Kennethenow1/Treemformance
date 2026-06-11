@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Beta Tester — TREEFORMANCE</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Titan+One&display=swap" rel="stylesheet">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <link rel="stylesheet" href="css/tokens.css">
+  <script src="js/level-theme.js?v=1" defer></script>
+  <link rel="stylesheet" href="css/tree.css?v=3">
+  <link rel="stylesheet" href="css/tutorial.css">
+  <link rel="stylesheet" href="css/level.css?v=perf-ascii-1">
+  <link rel="stylesheet" href="css/level-boot.css?v=2">
+  <script>document.documentElement.classList.add("is-level-booting");</script>
+</head>
+<body class="level-page level-page--5">
+  <div class="tutorial-modal" id="tutorial-modal" role="dialog" aria-modal="true" aria-labelledby="tutorial-title" aria-hidden="true">
+    <div class="tutorial-modal__backdrop" aria-hidden="true"></div>
+    <div class="tutorial-modal__panel">
+      <header class="tutorial-header">
+        <p class="tutorial-progress" aria-label="Beta Tester">
+          <span class="tutorial-progress__label">Beta Tester</span>
+        </p>
+        <h2 class="tutorial-header__title" id="tutorial-title">Build &amp; Master</h2>
+        <p class="tutorial-header__lede">
+          Tutorial done — this <strong>beta tester</strong> level is the full challenge: <strong>twelve numbers</strong>, deeper branches,
+          <strong>left/right quizzes</strong> mixed with <strong>free picks</strong>, and
+          rhythm beats where you press <strong>two arrows at once</strong>.
+        </p>
+      </header>
+      <aside class="callout callout--branch">
+        <span class="callout__tag">Beta</span>
+        <p class="callout__text">
+          Same <strong>left/right</strong> and <strong>free pick</strong> card types as the tutorial finale.
+          Long input paths show the first four beats, then <strong>.....</strong>.
+          Deep inserts use <strong>chord</strong> beats — hit both keys together.
+        </p>
+      </aside>
+      <figure class="tree-diagram" aria-label="Goal tree structure preview">
+        <div class="tree-diagram__stage" id="tutorial-tree-stage"></div>
+        <figcaption class="tree-diagram__caption">
+          Twelve numbers, five levels deep — study the goal before you play.
+        </figcaption>
+      </figure>
+      <aside class="callout callout--controls">
+        <span class="callout__tag">Controls</span>
+        <p class="callout__text">
+          Move between options with <kbd>↑</kbd> <kbd>↓</kbd>.
+          Confirm with <kbd>←</kbd> + <kbd>→</kbd> together — including <strong>Got it</strong>.
+        </p>
+      </aside>
+      <div class="tutorial-modal__actions">
+        <button type="button" class="tutorial-modal__gotit" id="tutorial-gotit">Got it</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="goal-intro" id="goal-intro" role="dialog" aria-modal="true" aria-labelledby="goal-intro-title" hidden>
+    <div class="goal-intro__backdrop" aria-hidden="true"></div>
+    <div class="goal-intro__panel">
+      <header class="goal-intro__header">
+        <span class="goal-intro__tag">Your goal</span>
+        <h2 class="goal-intro__title" id="goal-intro-title">Spread &amp; depth</h2>
+        <p class="goal-intro__lede">Pool <strong>3 7 9 11 14 18 22</strong> — match this <strong>branching</strong> shape by end of level.</p>
+      </header>
+      <div class="goal-intro__stage" id="goal-intro-stage" aria-label="Goal tree preview"></div>
+      <p class="goal-intro__hint" id="goal-intro-hint">Watch the shape…</p>
+      <div class="goal-intro__actions">
+        <button type="button" class="goal-intro__gotit tutorial-modal__gotit" id="goal-intro-gotit">Got it</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="level-bleed" id="level-bleed" aria-hidden="true"></div>
+  <div class="choice-pressure" id="choice-pressure" hidden aria-hidden="true"></div>
+
+  <div class="choice-timer" id="choice-timer" hidden aria-hidden="true" role="timer" aria-label="Time to pick a card">
+    <div class="choice-timer__track">
+      <div class="choice-timer__fill" id="choice-timer-fill"></div>
+    </div>
+  </div>
+
+  <div class="level-game" id="level-game">
+    <header class="level-hud">
+      <a class="level-hud__menu" href="index.html" aria-label="Back to menu">←</a>
+      <div class="level-hud__center">
+        <span class="level-hud__badge level-hud__badge--beta">Beta Tester</span>
+        <span class="level-hud__goal" id="level-goal-label" title="Goal tree shape">Goal: grand</span>
+      </div>
+      <div class="level-hud__score" id="level-score" aria-live="polite">
+        <span class="level-hud__score-label">PTS</span>
+        <span class="level-hud__score-value" id="score-value">100</span>
+      </div>
+    </header>
+
+    <div class="number-pool" id="number-pool" aria-label="Numbers to place">
+      <span class="number-pool__label">Pool</span>
+      <ul class="number-pool__chips" id="number-pool-chips"></ul>
+    </div>
+
+    <div class="level-countdown" id="level-countdown" aria-hidden="true">
+      <span class="level-countdown__num" id="countdown-num">3</span>
+    </div>
+
+    <div class="level-stage">
+      <div class="play-window is-split" id="play-window">
+        <div class="play-window__left">
+          <div class="reward-popup" id="level-question" role="dialog" aria-modal="true" aria-labelledby="reward-title" hidden>
+            <div class="reward-popup__panel">
+              <header class="reward-popup__banner">
+                <h2 class="reward-popup__title" id="reward-title">What number goes here?</h2>
+              </header>
+              <div class="reward-popup__cards">
+                <button type="button" class="upgrade-card upgrade-card--left" id="card-left">
+                  <div class="upgrade-card__inner">
+                    <span class="upgrade-card__cross" aria-hidden="true"></span>
+                    <span class="upgrade-card__type">Answer</span>
+                    <span class="upgrade-card__value">5</span>
+                    <span class="upgrade-card__divider" aria-hidden="true"></span>
+                    <span class="upgrade-card__effect">left of 8</span>
+                    <span class="upgrade-card__seq">← ↓</span>
+                  </div>
+                </button>
+                <button type="button" class="upgrade-card upgrade-card--right" id="card-right">
+                  <div class="upgrade-card__inner">
+                    <span class="upgrade-card__cross" aria-hidden="true"></span>
+                    <span class="upgrade-card__type">Answer</span>
+                    <span class="upgrade-card__value">12</span>
+                    <span class="upgrade-card__divider" aria-hidden="true"></span>
+                    <span class="upgrade-card__effect">right of 8</span>
+                    <span class="upgrade-card__seq">↓ ←</span>
+                  </div>
+                </button>
+              </div>
+              <p class="reward-popup__hint" data-choice-hint>↑ ↓ move · ← + → together to confirm</p>
+            </div>
+          </div>
+
+          <div class="level-sequence" id="level-sequence" hidden>
+            <div class="tile-rush" id="tile-rush">
+              <div class="tile-rush__stage" id="tile-stage">
+                <div class="tile-rush__lanes" id="tile-lanes">
+                  <div class="tile-rush__timing-guide" aria-hidden="true">
+                    <div class="timing-guide__outer"></div>
+                    <div class="timing-guide__perfect"></div>
+                  </div>
+                  <div class="tile-lane" data-key="ArrowLeft">
+                    <div class="tile-lane__tiles"></div>
+                  </div>
+                  <div class="tile-lane" data-key="ArrowDown">
+                    <div class="tile-lane__tiles"></div>
+                  </div>
+                  <div class="tile-lane" data-key="ArrowUp">
+                    <div class="tile-lane__tiles"></div>
+                  </div>
+                  <div class="tile-lane" data-key="ArrowRight">
+                    <div class="tile-lane__tiles"></div>
+                  </div>
+                </div>
+                <div class="tile-rush__judge" id="tile-judge" aria-live="polite"></div>
+                <div class="tile-rush__hitzone">
+                  <div class="tile-rush__hitline" aria-hidden="true"></div>
+                  <div class="tile-rush__receptors" id="tile-receptors" aria-label="Arrow key targets">
+                    <div class="tile-receptor" data-key="ArrowLeft"><span>←</span></div>
+                    <div class="tile-receptor" data-key="ArrowDown"><span>↓</span></div>
+                    <div class="tile-receptor" data-key="ArrowUp"><span>↑</span></div>
+                    <div class="tile-receptor" data-key="ArrowRight"><span>→</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <figure class="tree-diagram tree-diagram--game tree-diagram--build tree-arena" aria-label="Your tree — builds as you play">
+          <figcaption class="tree-arena__label">Your tree</figcaption>
+          <div class="tree-diagram__stage" id="level-tree-stage"></div>
+        </figure>
+        <figure class="tree-diagram tree-diagram--game tree-diagram--goal-ref" aria-label="Goal structure">
+          <figcaption class="tree-arena__label">Goal</figcaption>
+          <div class="tree-diagram__stage" id="level-goal-stage"></div>
+        </figure>
+      </div>
+    </div>
+
+    <footer class="level-footer">
+      <p class="level-prompt" id="level-prompt">Click Got it to start</p>
+    </footer>
+  </div>
+
+  <div class="compare-modal" id="compare-modal" role="dialog" aria-modal="true" aria-labelledby="compare-title" hidden>
+    <div class="compare-modal__backdrop" aria-hidden="true"></div>
+    <div class="compare-modal__panel compare-modal__panel--wide">
+      <h2 class="compare-modal__title" id="compare-title">Tree Check</h2>
+      <p class="compare-modal__lede" id="compare-lede">Comparing your tree to the goal…</p>
+
+      <div class="compare-modal__trees">
+        <figure class="compare-modal__tree-card">
+          <figcaption class="compare-modal__tree-label">Your tree</figcaption>
+          <div class="compare-modal__tree-stage" id="compare-yours-stage"></div>
+        </figure>
+        <div class="compare-modal__vs" aria-hidden="true">vs</div>
+        <figure class="compare-modal__tree-card compare-modal__tree-card--goal">
+          <figcaption class="compare-modal__tree-label">Goal</figcaption>
+          <div class="compare-modal__tree-stage" id="compare-goal-stage"></div>
+        </figure>
+      </div>
+
+      <div class="compare-modal__meter" id="compare-meter">
+        <div class="compare-modal__meter-head">
+          <span class="compare-modal__meter-title">Structure match</span>
+          <span class="compare-modal__meter-pct" id="compare-match-pct">0%</span>
+        </div>
+        <div class="compare-modal__meter-track" aria-hidden="true">
+          <div class="compare-modal__meter-fill" id="compare-match-fill"></div>
+        </div>
+      </div>
+
+      <ul class="compare-modal__issues" id="compare-issues" aria-live="polite"></ul>
+
+      <div class="compare-modal__tally" id="compare-tally">
+        <p class="compare-modal__tally-row">
+          <span>Score before check</span>
+          <span class="compare-modal__tally-num" id="compare-score-before">0</span>
+        </p>
+        <p class="compare-modal__tally-row compare-modal__tally-row--penalty" id="compare-penalty-row" hidden>
+          <span>Structure penalty</span>
+          <span class="compare-modal__tally-num" id="compare-penalty">−0</span>
+        </p>
+        <p class="compare-modal__tally-row compare-modal__tally-row--final">
+          <span>Final score</span>
+          <span class="compare-modal__tally-num" id="compare-score-final">0</span>
+        </p>
+      </div>
+
+      <div class="compare-modal__actions" id="compare-actions" hidden>
+        <a class="tutorial-modal__gotit" href="index.html">Back to menu</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/vendor/d3.min.js" defer></script>
+  <script src="js/tree-optimal.js?v=7" defer></script>
+  <script src="js/tree-d3.js?v=30" defer></script>
+  <script src="js/music-catalog.js?v=5" defer></script>
+  <script src="js/beatmaps-data.js?v=5" defer></script>
+  <script src="js/beatmaps.js?v=17" defer></script>
+  <script src="js/level-audio.js?v=6" defer></script>
+  <script src="js/music-app.js?v=20" defer></script>
+  <script src="js/level-music.js?v=23" defer></script>
+  <script src="js/ascii-bg.js?v=6" defer></script>
+  <script src="js/level-ascii-bg.js?v=8" defer></script>
+  <script src="js/level-boot.js?v=4" defer></script>
+  <script src="js/level-choice-fx.js?v=12" defer></script>
+  <script src="js/level-sfx.js?v=1" defer></script>
+  <script src="js/level-feedback.js?v=4" defer></script>
+  <script src="js/level-tiles.js?v=4" defer></script>
+  <script src="js/level-music-ui.js?v=2" defer></script>
+  <script src="js/control-settings.js?v=1" defer></script>
+  <script src="js/level-choice-input.js?v=5" defer></script>
+  <script src="js/level-input.js?v=2" defer></script>
+  <script src="js/level-modal.js?v=10" defer></script>
+  <script src="js/level-5.js?v=breath-room" defer></script>
+</body>
+</html>

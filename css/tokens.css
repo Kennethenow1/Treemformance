@@ -1,0 +1,13 @@
+:root {
+  --color-bg: #ffffff;
+  --color-ink: #000000;
+  --color-grey-mid: #b0b0b0;
+  --color-grey-light: #e8e8e8;
+  --color-grey-ghost: #cccccc;
+  --font-display: "Titan One", sans-serif;
+  --font-ui: system-ui, -apple-system, "Segoe UI", sans-serif;
+  --node-size: 48px;
+  --node-size-root: 56px;
+  --node-border: 2px solid var(--color-ink);
+  --edge-width: 2px;
+}

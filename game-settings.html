@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Game Settings — TREEFORMANCE</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Titan+One&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/settings.css?v=3">
+  <link rel="stylesheet" href="css/music.css?v=7">
+</head>
+<body class="settings-page">
+  <canvas class="settings__viz" id="settings-viz" aria-hidden="true"></canvas>
+  <main class="settings" data-settings-root>
+    <a class="settings__back" href="index.html">← Menu</a>
+
+    <header class="settings__hero">
+      <h1 class="settings__title">Game Settings</h1>
+      <p class="settings__lede">Keyboard controls for the tutorial, beta level, and rhythm play. No mouse needed in-game.</p>
+    </header>
+
+    <section class="settings-card settings-card--featured" aria-labelledby="controls-title">
+      <span class="settings-card__tag">Controls</span>
+      <h2 class="settings-card__title" id="controls-title">Control scheme</h2>
+      <p class="settings-card__text">Pick arrow keys or WASD. Your choice applies everywhere — card picks and rhythm lanes.</p>
+
+      <div class="scheme-toggle" role="group" aria-label="Control scheme">
+        <button type="button" class="scheme-toggle__btn is-active" data-scheme="arrows" aria-pressed="true">
+          Arrow keys
+        </button>
+        <button type="button" class="scheme-toggle__btn" data-scheme="wasd" aria-pressed="false">
+          WASD
+        </button>
+      </div>
+
+      <div class="lane-pad" aria-label="Rhythm lane layout preview">
+        <span class="lane-pad__key lane-pad__key--up" data-glyph-up>↑</span>
+        <span class="lane-pad__key lane-pad__key--left" data-glyph-left>←</span>
+        <span class="lane-pad__key lane-pad__key--down" data-glyph-down>↓</span>
+        <span class="lane-pad__key lane-pad__key--right" data-glyph-right>→</span>
+        <span class="lane-pad__label">Rhythm lanes during play</span>
+      </div>
+    </section>
+
+    <section class="settings-card" aria-labelledby="choice-title">
+      <span class="settings-card__tag">Between rounds</span>
+      <h2 class="settings-card__title" id="choice-title">Choosing an answer</h2>
+      <ul class="settings-keys">
+        <li data-choice-nav>Move between options ↑ ↓</li>
+        <li data-choice-confirm>Confirm your pick — hold ← and → together</li>
+      </ul>
+      <p class="settings-card__note" data-choice-note>
+        Arrow up and down switch cards. Press left and right arrows together to lock in your choice.
+      </p>
+    </section>
+
+    <section class="settings-card" aria-labelledby="sync-title">
+      <span class="settings-card__tag">Audio</span>
+      <h2 class="settings-card__title" id="sync-title">Beat sync</h2>
+      <p class="settings-card__text">If notes feel early or late, open <strong>Music</strong> on the main menu and use the <strong>Sync</strong> tab mini-game.</p>
+      <div class="settings-callout">
+        <span class="settings-callout__icon" aria-hidden="true">♪</span>
+        <p class="settings-callout__text">Sync lives on the music phone only — not in level tutorials.</p>
+      </div>
+    </section>
+  </main>
+
+  <button type="button" class="menu-music-pill" id="music-mini-pill" hidden aria-label="Music playing">
+    <span class="menu-music-pill__art" aria-hidden="true"></span>
+    <span class="menu-music-pill__label">Now playing</span>
+    <span class="menu-music-pill__eq" aria-hidden="true"><span></span><span></span><span></span></span>
+  </button>
+
+  <script src="js/music-catalog.js?v=6" defer></script>
+  <script src="js/music-app.js?v=18" defer></script>
+  <script src="js/settings-bg.js?v=1" defer></script>
+  <script src="js/menu-audio.js?v=7" defer></script>
+  <script src="js/control-settings.js?v=1" defer></script>
+  <script src="js/game-settings.js?v=1" defer></script>
+</body>
+</html>

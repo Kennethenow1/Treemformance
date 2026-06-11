@@ -24,6 +24,8 @@
   const ENSURE_PLAY_TIMEOUT_MS = 3500;
   let rhythmGeneration = 0;
   let rhythmNotifyFrame = null;
+  /** True when the active level track finished — judgment clock stops, so unresolved notes must auto-miss. */
+  let playbackEnded = false;
   let currentScroll = {
     approachMs: 1200,
     minNoteGapMs: 1200,
@@ -60,6 +62,24 @@
 
   function getJudgmentTimeMs() {
     return getMusicTimeMs();
+  }
+
+  function resetPlaybackEnded() {
+    playbackEnded = false;
+  }
+
+  function markPlaybackEnded(trackId) {
+    if (playbackEnded) return;
+    playbackEnded = true;
+    global.dispatchEvent(
+      new CustomEvent("levelmusic:ended", {
+        detail: { trackId: trackId || activeTrackId },
+      })
+    );
+  }
+
+  function isPlaybackEnded() {
+    return playbackEnded;
   }
 
   function refreshScrollConfig(trackId) {
@@ -167,6 +187,7 @@
     }
 
     levelMusicStarted = true;
+    resetPlaybackEnded();
     nextBeatIndex = global.Beatmaps.findBeatIndexAt(activeTrackId, getPlaybackTimeMs());
     return true;
   }
@@ -286,6 +307,7 @@
       if (!ok) return false;
 
       levelMusicStarted = true;
+      resetPlaybackEnded();
       nextBeatIndex = global.Beatmaps.findBeatIndexAt(id, getPlaybackTimeMs());
 
       global.dispatchEvent(
@@ -405,6 +427,7 @@
 
   function shouldMissNote(note) {
     if (note.judged || note.missed) return false;
+    if (playbackEnded) return true;
     return getJudgmentTimeMs() > note.songTimeMs + HIT_WINDOW_MS;
   }
 
@@ -448,6 +471,7 @@
 
   function installTrackChangeListener() {
     global.addEventListener("treemusic:play", (event) => {
+      resetPlaybackEnded();
       onTrackAdvanced(event.detail?.trackId);
     });
     global.addEventListener("treemusic:ended", () => {
@@ -455,9 +479,18 @@
     });
   }
 
+  function installPlaybackEndedListener() {
+    if (!global.LevelAudio?.setOnPlaybackEnded) return;
+    global.LevelAudio.setOnPlaybackEnded((trackId) => {
+      if (!levelMusicStarted) return;
+      markPlaybackEnded(trackId);
+    });
+  }
+
   async function boot() {
     const onLevel = document.getElementById("level-game") || document.getElementById("tutorial-modal");
     installTrackChangeListener();
+    installPlaybackEndedListener();
     if (!onLevel) return;
 
     refreshScrollConfig(global.MusicCatalog?.getActiveTrackId?.());
@@ -497,6 +530,7 @@
     shouldMissNote,
     shouldPulseBeat,
     markBeatFlashed,
+    isPlaybackEnded,
     isReady,
     hasStarted: () => levelMusicStarted,
     onTrackAdvanced,
